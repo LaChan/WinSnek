@@ -1,6 +1,7 @@
 #pragma once
 #include "olcConsoleGameEngineOOP.h"
 #include "SnakeHead.h"
+#include "Fruit.h"
 
 class SnakeGame : public olcConsoleGameEngineOOP
 {
@@ -25,6 +26,7 @@ protected:
 	const int GROUND_COLOUR = FG_BLUE | BG_DARK_BLUE;	
 
 	SnakeHead _head;
+	Fruit _fruit;
 
 	void RenderWorld();
 };
