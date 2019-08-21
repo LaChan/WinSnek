@@ -2,6 +2,7 @@
 #include "olcConsoleGameEngineOOP.h"
 #include "Snake.h"
 #include "Fruit.h"
+#include <vector>
 
 class SnakeGame : public olcConsoleGameEngineOOP
 {
@@ -25,7 +26,8 @@ protected:
 	const int HEAD_COLOUR = BG_DARK_BLUE | FG_DARK_RED;
 	const int GROUND_COLOUR = FG_BLUE | BG_DARK_BLUE;	
 
-	Snake _snake;
+	SnakeHead _snake;
+	//vector<Snake> _snake;
 	Fruit _fruit;
 
 	void RenderWorld();

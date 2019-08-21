@@ -4,6 +4,7 @@
 bool SnakeGame::OnUserCreate()
 {
 	_snake.x = _snake.y = (float)START_X;
+	_snake.cellX = _snake.cellY = START_X;
 	_snake.speed = 0.0010f;
 	_snake.colour = HEAD_COLOUR;
 	_snake.dir = _snake.UP;
@@ -58,14 +59,30 @@ bool SnakeGame::OnUserUpdate(float fElapsedTime)
 	if (floor(_snake.x) == _fruit.x && floor(_snake.y) == _fruit.y) 
 	{
 		_score += 10;
-		_snake.tailPieces += 1;
 		_fruit.x = (rand() % ScreenWidth());
 		_fruit.y = (rand() % ScreenHeight());
 	}
 
+	//check if we moved a whole x -> cell
+	if (floor(_snake.x) != floor(_snake.lastX))
+	{
+		_snake.cellX = floor(_snake.x);
+		_snake.lastCellX = (int)floor(_snake.lastX);
+	}
+
+	//check if we moved a whole y -> cell
+	if (floor(_snake.y) != floor(_snake.lastY))
+	{
+		_snake.cellY = floor(_snake.y);
+		_snake.lastCellY = (int)floor(_snake.lastY);
+	}
+
+	_snake.lastX = _snake.x;
+	_snake.lastY = _snake.y;
+
 	// Draw the world
 	RenderWorld();
-
+	
 	// OnUserUpdate has to return true for the engine to continue
 	return true;
 }
@@ -77,25 +94,18 @@ void SnakeGame::RenderWorld()
 	Fill(0, 0, ScreenWidth(), ScreenHeight(), PIXEL_SOLID, GROUND_COLOUR); 
 
 	DrawString(0, 0, L"Score: " + to_wstring(_score));
-	DrawString(0, 1, L"Tail: " + to_wstring(_snake.tailPieces));
-	/*
-	DrawString(0, 1, L"head x: " + to_wstring(_snake.x));
-	DrawString(0, 2, L"head y: " + to_wstring(_snake.y));
-	DrawString(0, 3, L"fruit x: " + to_wstring(_fruit.x));
-	DrawString(0, 4, L"fruit y: " + to_wstring(_fruit.y));
-	*/
+	DrawString(0, 1, L"x: " + to_wstring(_snake.x));
+	DrawString(0, 2, L"y: " + to_wstring(_snake.y));
+	DrawString(0, 3, L"lastx: " + to_wstring(_snake.lastX));
+	DrawString(0, 4, L"lasty: " + to_wstring(_snake.lastY));
+	DrawString(0, 5, L"cellX: " + to_wstring(_snake.cellX));
+	DrawString(0, 6, L"cellY: " + to_wstring(_snake.cellY));
+	DrawString(0, 7, L"lastcellX: " + to_wstring(_snake.lastCellX));
+	DrawString(0, 8, L"lastcellY: " + to_wstring(_snake.lastCellY));
 
 	//Draw the Snake
 	Draw((int)_snake.x, (int)_snake.y, PIXEL_SOLID, _snake.colour);
-
-	int countX = 0;
-	int countY = 0;
 	
-	//Draw the tail
-	for (unsigned int i = 0; i <= _snake.tailPieces; i++)
-	{
-		
-	};
 	//Draw the Fruit
 	Draw((int)_fruit.x, (int)_fruit.y, PIXEL_SOLID, _fruit.colour);
 

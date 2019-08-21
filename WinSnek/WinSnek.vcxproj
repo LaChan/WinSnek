@@ -132,6 +132,7 @@
     <ClInclude Include="olcConsoleGameEngineOOP.h" />
     <ClInclude Include="SnakeGame.h" />
     <ClInclude Include="Snake.h" />
+    <ClInclude Include="SnakeTail.h" />
     <ClInclude Include="termcolor.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
