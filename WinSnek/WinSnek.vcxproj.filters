@@ -35,10 +35,10 @@
     <ClInclude Include="SnakeGame.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SnakeHead.h">
+    <ClInclude Include="Fruit.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Fruit.h">
+    <ClInclude Include="Snake.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
