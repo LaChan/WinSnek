@@ -24,6 +24,15 @@
     <ClCompile Include="SnakeGame.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="SnakeHead.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SnakeTail.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Fruit.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="termcolor.h">
@@ -38,10 +47,10 @@
     <ClInclude Include="Fruit.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Snake.h">
+    <ClInclude Include="SnakeTail.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SnakeTail.h">
+    <ClInclude Include="SnakeHead.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

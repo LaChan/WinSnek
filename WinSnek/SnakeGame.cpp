@@ -1,18 +1,24 @@
 #include "SnakeGame.h"
+#include "olcConsoleGameEngineOOP.h"
+#include "SnakeHead.h"
+#include "SnakeTail.h"
+#include "Fruit.h"
+#include <vector>
 
 
 bool SnakeGame::OnUserCreate()
 {
-	_snake.x = _snake.y = (float)START_X;
-	_snake.cellX = _snake.cellY = START_X;
-	_snake.speed = 0.0010f;
-	_snake.colour = HEAD_COLOUR;
-	_snake.dir = _snake.UP;
+	_snakeHead.x = _snakeHead.y = (float)START_X;
+	_snakeHead.cellX = _snakeHead.cellY = START_X;
+	_snakeHead.speed = 0.0015f;
+	_snakeHead.dir = _snakeHead.UP;
+	_snakeHead.colour = HEAD_COLOUR;
 	_fruit.x = (rand() % ScreenWidth());
 	_fruit.y = (rand() % ScreenHeight());
-	_fruit.colour = FG_GREEN | BG_DARK_RED;
+	_fruit.colour = FG_GREEN | BG_WHITE;
 	_score = 0;
 	srand((int)time(0)); // create random seed from current epoch time
+	
 	return true;
 }
 
@@ -26,106 +32,159 @@ bool SnakeGame::OnUserUpdate(float fElapsedTime)
 
 	// update everything
 	if (isUpKeyHeld_)
-	_snake.dir = _snake.UP;
+	_snakeHead.dir = _snakeHead.UP;
 	if (isDownKeyHeld_) 
-	_snake.dir = _snake.DOWN;
+	_snakeHead.dir = _snakeHead.DOWN;
 	if (isRightKeyHeld_) 
-	_snake.dir = _snake.RIGHT;
+	_snakeHead.dir = _snakeHead.RIGHT;
 	if (isLeftKeyHeld_) 
-	_snake.dir = _snake.LEFT;
+	_snakeHead.dir = _snakeHead.LEFT;
 
 	//check for teleport x
-	if (_snake.x >= ScreenWidth())
+	if (_snakeHead.x >= ScreenWidth())
 	{
-		_snake.x = 0;
+		_snakeHead.x = 0;
 	}
-	else if (_snake.x < 0.0)
+	else if (_snakeHead.x < 0.0)
 	{
-		_snake.x = ScreenWidth();
-
+		_snakeHead.x = ScreenWidth();
 	}
 
 	//check for teleport y
-	if (_snake.y >= ScreenHeight())
+	if (_snakeHead.y >= ScreenHeight())
 	{
-		_snake.y = 0;
+		_snakeHead.y = 0;
 	}
-	else if (_snake.y < 0.0)
+	else if (_snakeHead.y < 0.0)
 	{
-		_snake.y = ScreenHeight();
+		_snakeHead.y = ScreenHeight();
 	}
 
+
 	//check for fruit collison
-	if (floor(_snake.x) == _fruit.x && floor(_snake.y) == _fruit.y) 
+	if (_snakeHead.cellX == _fruit.x && _snakeHead.cellY == _fruit.y) 
 	{
 		_score += 10;
 		_fruit.x = (rand() % ScreenWidth());
 		_fruit.y = (rand() % ScreenHeight());
+		int endX = 0;
+		int endY = 0;
+		if (_tailPieces.size() > 0 && (_snakeHead.dir == _snakeHead.UP)) {
+			int endX = _tailPieces.back().cellX;
+			int endY = _tailPieces.back().cellY - 1;
+		}
+		else if (_tailPieces.size() > 0 && (_snakeHead.dir == _snakeHead.DOWN)) {
+			int endX = _tailPieces.back().cellX;
+			int endY = _tailPieces.back().cellY + 1;
+		}
+		else if (_tailPieces.size() > 0 && (_snakeHead.dir == _snakeHead.RIGHT)) {
+			int endX = _tailPieces.back().cellX + 1;
+			int endY = _tailPieces.back().cellY;
+		}
+		else if (_tailPieces.size() > 0 && (_snakeHead.dir == _snakeHead.LEFT)) {
+			int endX = _tailPieces.back().cellX -1;
+			int endY = _tailPieces.back().cellY;
+		}
+		else {
+			int endX = _snakeHead.cellX;
+			int endY = _snakeHead.cellY;
+			
+		}
+		_tailPieces.push_back(SnakeTail(endX, endY));
 	}
-
-	//check if we moved a whole x -> cell
-	if (floor(_snake.x) != floor(_snake.lastX))
-	{
-		_snake.cellX = floor(_snake.x);
-		_snake.lastCellX = (int)floor(_snake.lastX);
-	}
-
-	//check if we moved a whole y -> cell
-	if (floor(_snake.y) != floor(_snake.lastY))
-	{
-		_snake.cellY = floor(_snake.y);
-		_snake.lastCellY = (int)floor(_snake.lastY);
-	}
-
-	_snake.lastX = _snake.x;
-	_snake.lastY = _snake.y;
-
+	
 	// Draw the world
 	RenderWorld();
 	
 	// OnUserUpdate has to return true for the engine to continue
 	return true;
-}
+	}
+
 
 void SnakeGame::RenderWorld()
 {
 
-	// Clear the screen by drawing ground colour
+	// Clear the screen by drawing GROUND colour
 	Fill(0, 0, ScreenWidth(), ScreenHeight(), PIXEL_SOLID, GROUND_COLOUR); 
 
 	DrawString(0, 0, L"Score: " + to_wstring(_score));
-	DrawString(0, 1, L"x: " + to_wstring(_snake.x));
-	DrawString(0, 2, L"y: " + to_wstring(_snake.y));
-	DrawString(0, 3, L"lastx: " + to_wstring(_snake.lastX));
-	DrawString(0, 4, L"lasty: " + to_wstring(_snake.lastY));
-	DrawString(0, 5, L"cellX: " + to_wstring(_snake.cellX));
-	DrawString(0, 6, L"cellY: " + to_wstring(_snake.cellY));
-	DrawString(0, 7, L"lastcellX: " + to_wstring(_snake.lastCellX));
-	DrawString(0, 8, L"lastcellY: " + to_wstring(_snake.lastCellY));
-
-	//Draw the Snake
-	Draw((int)_snake.x, (int)_snake.y, PIXEL_SOLID, _snake.colour);
 	
-	//Draw the Fruit
-	Draw((int)_fruit.x, (int)_fruit.y, PIXEL_SOLID, _fruit.colour);
+	DrawString(0, 1, L"tail vector size " + to_wstring(_tailPieces.size()));
+	
+	DrawString(0, 2, L"vector 0 cellX" + to_wstring(vec0cell));
+	DrawString(0, 2, L"vector 1 cellX" + to_wstring(vec0cell));
+
+	/*
+	DrawString(0, 3, L"head last cell x: " + to_wstring(_snakeHead.lastCellX));
+	DrawString(0, 4, L"head last cell y: " + to_wstring(_snakeHead.lastCellY));
+	*/
+	_snakeHead.lastY = _snakeHead.y;
+	_snakeHead.lastX = _snakeHead.x;
 
 	//Move the Snake   
-	if (_snake.dir == _snake.UP)
+	if (_snakeHead.dir == _snakeHead.UP)
 	{
-		_snake.y -= _snake.speed;
+		_snakeHead.y -= _snakeHead.speed;
 	}
-	else if (_snake.dir == _snake.DOWN)
+	else if (_snakeHead.dir == _snakeHead.DOWN)
 	{
-		_snake.y += _snake.speed;
+		_snakeHead.y += _snakeHead.speed;
+
 	}
-	else if (_snake.dir == _snake.RIGHT)
+	else if (_snakeHead.dir == _snakeHead.RIGHT)
 	{
-		_snake.x += _snake.speed;
+		_snakeHead.x += _snakeHead.speed;
 	}
-	else if (_snake.dir = _snake.LEFT)
+	else if (_snakeHead.dir = _snakeHead.LEFT)
 	{
-		_snake.x -= _snake.speed;
+		_snakeHead.x -= _snakeHead.speed;
+
 	}
+
+	_snakeHead.cellX = round(_snakeHead.x);
+	_snakeHead.cellY = round(_snakeHead.y);
+	
+	if (round(_snakeHead.x) != round(_snakeHead.lastX)) {
+		
+		_snakeHead.lastCellX = (int)round(_snakeHead.lastX);
+
+		for (unsigned int i = 0; i < _tailPieces.size(); i++) {
+			SnakeTail& currentPiece = _tailPieces[i];
+ 			if (i == 0) {
+				currentPiece.cellX = _snakeHead.lastCellX;
+				currentPiece.cellY = _snakeHead.cellY;
+			}
+			else {
+				currentPiece.cellX = _tailPieces[i-1].lastCellX;
+				currentPiece.cellY = _tailPieces[i-1].cellY;
+			}
+		}
+	}
+
+	if (round(_snakeHead.y) != round(_snakeHead.lastY)) {
+		_snakeHead.lastCellY = (int)round(_snakeHead.lastY);
+		for (unsigned int j = 0; j < _tailPieces.size(); j++) {
+			SnakeTail& currentPiece2 = _tailPieces[j];
+			if (j == 0) {
+				currentPiece2.cellX = _snakeHead.cellX;
+				currentPiece2.cellY = _snakeHead.lastCellY;
+			}
+			else {
+				currentPiece2.cellX = _tailPieces[j-1].cellX;
+				currentPiece2.cellY = _tailPieces[j-1].lastCellY;
+			}
+		} 
+	}
+
+	//Draw the Head
+	Draw(_snakeHead.cellX, _snakeHead.cellY, PIXEL_SOLID, _snakeHead.colour);
+
+	//Draw the Tail
+	for (unsigned int i = 0; i < _tailPieces.size(); i++) {
+		Draw(_tailPieces[i].cellX, _tailPieces[i].cellY, PIXEL_SOLID, _snakeHead.colour);
+	}
+	//Draw the Fruit
+	Draw((int)_fruit.x, (int)_fruit.y, PIXEL_SOLID, _fruit.colour);
 
 }
 

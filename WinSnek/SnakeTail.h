@@ -1,7 +1,7 @@
 #pragma once
-class Snake
+class SnakeTail
 {
-
+	
 public:
 	float x = 0.0f;
 	float y = 0.0f;
@@ -16,4 +16,7 @@ public:
 	int colour = 0;
 	enum Direction { STOP, LEFT, RIGHT, UP, DOWN };
 	Direction dir;
+
+	SnakeTail(int x, int y);
+	~SnakeTail();
 };

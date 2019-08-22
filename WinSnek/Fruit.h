@@ -4,8 +4,11 @@ class Fruit
 {
 
 public:
-	float x = 0.0f;
-	float y = 0.0f;
+	int x = 0;
+	int y = 0;
 	int colour = 0;
+
+	Fruit();
+	~Fruit();
 };
 

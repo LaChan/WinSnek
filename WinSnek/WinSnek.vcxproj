@@ -123,15 +123,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Fruit.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="olcConsoleGameEngineOOP.cpp" />
     <ClCompile Include="SnakeGame.cpp" />
+    <ClCompile Include="SnakeHead.cpp" />
+    <ClCompile Include="SnakeTail.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Fruit.h" />
     <ClInclude Include="olcConsoleGameEngineOOP.h" />
     <ClInclude Include="SnakeGame.h" />
-    <ClInclude Include="Snake.h" />
+    <ClInclude Include="SnakeHead.h" />
     <ClInclude Include="SnakeTail.h" />
     <ClInclude Include="termcolor.h" />
   </ItemGroup>

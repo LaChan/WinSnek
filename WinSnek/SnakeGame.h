@@ -1,6 +1,7 @@
 #pragma once
 #include "olcConsoleGameEngineOOP.h"
-#include "Snake.h"
+#include "SnakeHead.h"
+#include "SnakeTail.h"
 #include "Fruit.h"
 #include <vector>
 
@@ -26,8 +27,10 @@ protected:
 	const int HEAD_COLOUR = BG_DARK_BLUE | FG_DARK_RED;
 	const int GROUND_COLOUR = FG_BLUE | BG_DARK_BLUE;	
 
-	SnakeHead _snake;
-	//vector<Snake> _snake;
+	int vec0cell = 0;
+	int vec1cell = 0;
+	vector<SnakeTail> _tailPieces;
+	SnakeHead _snakeHead;
 	Fruit _fruit;
 
 	void RenderWorld();
