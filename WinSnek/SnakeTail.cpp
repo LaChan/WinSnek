@@ -1,9 +1,8 @@
 #include "SnakeTail.h"
 
-SnakeTail::SnakeTail(int x, int y)
+SnakeTail::SnakeTail()
 {
-	cellX = x;
-	cellY = y;
+
 }
 
 SnakeTail::~SnakeTail()

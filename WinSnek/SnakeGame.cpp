@@ -18,7 +18,6 @@ bool SnakeGame::OnUserCreate()
 	_fruit.colour = FG_GREEN | BG_WHITE;
 	_score = 0;
 	srand((int)time(0)); // create random seed from current epoch time
-	
 	return true;
 }
 
@@ -41,7 +40,7 @@ bool SnakeGame::OnUserUpdate(float fElapsedTime)
 		_snakeHead.dir = _snakeHead.LEFT;
 
 	//check for teleport 
-	if (_snakeHead.x >= ScreenWidth())
+	if (_snakeHead.x > ScreenWidth())
 	{
 		_snakeHead.x = 0;
 	}
@@ -49,7 +48,7 @@ bool SnakeGame::OnUserUpdate(float fElapsedTime)
 	{
 		_snakeHead.x = ScreenWidth();
 	}
-	else if (_snakeHead.y >= ScreenHeight())
+	else if (_snakeHead.y > ScreenHeight())
 	{
 		_snakeHead.y = 0;
 	}
@@ -64,19 +63,13 @@ bool SnakeGame::OnUserUpdate(float fElapsedTime)
 		//update the score
 		_score += 10;
 
-		//randomly generate fruit at a new position
+		//randomly generate fruit at a new position  
 		_fruit.x = (rand() % ScreenWidth());
 		_fruit.y = (rand() % ScreenHeight());
 		
 		//add a new tail piece
-		if (_tailPieces.size() == 0){
-			_tailPieces.push_back(SnakeTail(_snakeHead.lastCellX, _snakeHead.lastCellY));
-		}
-		else {
-			_tailPieces.push_back(SnakeTail(_tailPieces.back().cellX, _tailPieces.back().cellY-1));
-		}
-		pieceX += 1;
-		pieceY += 1;
+		_tailPieces.push_back(SnakeTail());
+
 	}
 
 	// Draw the world
@@ -89,8 +82,8 @@ bool SnakeGame::OnUserUpdate(float fElapsedTime)
 void SnakeGame::RenderWorld()
 {
 	// Clear the screen by drawing GROUND colour
-	Fill(0, 0, ScreenWidth(), ScreenHeight(), PIXEL_SOLID, GROUND_COLOUR); 
-	DrawString(0, 0, L"Score: " + to_wstring(_score));	
+	Fill(0, 0, ScreenWidth(), ScreenHeight(), PIXEL_SOLID, GROUND_COLOUR);
+	DrawString(0, 0, L"Score: " + to_wstring(_score));
 	DrawString(0, 1, L"tail vector size " + to_wstring(_tailPieces.size()));
 
 	//Move the Snake
@@ -107,7 +100,6 @@ void SnakeGame::RenderWorld()
 	else if (_snakeHead.dir == _snakeHead.DOWN)
 	{
 		_snakeHead.y += _snakeHead.speed;
-
 	}
 	else if (_snakeHead.dir == _snakeHead.RIGHT)
 	{
@@ -122,44 +114,70 @@ void SnakeGame::RenderWorld()
 	//Round float coords to cell
 	_snakeHead.cellX = round(_snakeHead.x);
 	_snakeHead.cellY = round(_snakeHead.y);
-	
+
 	//Are we now over halfway to a new cell in x-plane?
 	if (round(_snakeHead.x) != round(_snakeHead.lastX)) {
-		
+
 		//update last cell value
 		_snakeHead.lastCellX = (int)round(_snakeHead.lastX);
-		
-		//update the position of each _tailPiece
 
+		for (int i = 0; i < _tailPieces.size(); i++) {
+
+			if (i == 0) {
+				_tailPieces[i].lastCellX = _tailPieces[i].cellX;
+				_tailPieces[i].cellX = _snakeHead.lastCellX;
+				_tailPieces[i].lastCellY = _tailPieces[i].cellY;
+				_tailPieces[i].cellY = _snakeHead.cellY;
+				
+			}
+			else {
+				_tailPieces[i].lastCellX = _tailPieces[i].cellX;
+				_tailPieces[i].cellX = _tailPieces[i-1].lastCellX;
+				_tailPieces[i].lastCellY = _tailPieces[i].cellY;
+				_tailPieces[i].cellY = _tailPieces[i-1].lastCellY;
+
+			}
+
+		}
 	}
 
 	//Are we now over halfway to a new cell in y-plane?
 	if (round(_snakeHead.y) != round(_snakeHead.lastY)) {
-		
+
 		//update last cell value
 		_snakeHead.lastCellY = (int)round(_snakeHead.lastY);
 
-		//update the position of each _tailPiece
-		
+		for (int i = 0; i < _tailPieces.size(); i++) {
+			if (i == 0) {
+				_tailPieces[i].lastCellX = _tailPieces[i].cellX;
+				_tailPieces[i].cellX = _snakeHead.cellX;
+				_tailPieces[i].lastCellY = _tailPieces[i].cellY;
+				_tailPieces[i].cellY = _snakeHead.lastCellY;
+			}
+			else {
+				_tailPieces[i].lastCellX = _tailPieces[i].cellX;
+				_tailPieces[i].cellX = _tailPieces[i - 1].lastCellX;
+				_tailPieces[i].lastCellY = _tailPieces[i].cellY;
+				_tailPieces[i].cellY = _tailPieces[i - 1].lastCellY;
+			}
+		}
 	}
 
 	//Draw the Head
 	Draw(_snakeHead.cellX, _snakeHead.cellY, PIXEL_SOLID, _snakeHead.colour);
-
 	//Draw the Tail
 	for (unsigned int i = 0; i < _tailPieces.size(); i++) {
 		Draw(_tailPieces[i].cellX, _tailPieces[i].cellY, PIXEL_SOLID, _snakeHead.colour);
 	}
-
 	//Draw the Fruit
 	Draw((int)_fruit.x, (int)_fruit.y, PIXEL_SOLID, _fruit.colour);
 
+		
 }
 
 SnakeGame::SnakeGame()
 {
 }
-
 SnakeGame::~SnakeGame()
 {
 }
