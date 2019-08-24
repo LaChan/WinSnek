@@ -76,7 +76,7 @@ OneLoneCoder_Example game;
 game.ConstructConsole(160, 100, 8, 8);
 
 // Start the engine!
-game.Start();
+game.Startgame.Start();
 
 return 0;
 }
