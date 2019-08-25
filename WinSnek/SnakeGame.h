@@ -28,12 +28,11 @@ protected:
 	bool isSpaceKeyHeld_ = false;
 	bool isEscapeKeyHeld_ = false;
 	bool waitingForInput = false;
-
 	bool deadSnake = false;
 
 	const int START_X = 10;
 	const int HEAD_COLOUR = BG_DARK_BLUE | FG_DARK_RED;
-	const int GROUND_COLOUR = FG_BLUE | BG_DARK_BLUE;	
+	const int GROUND_COLOUR = FG_BLUE | BG_DARK_BLUE;
 
  	vector<SnakeTail> _tailPieces;
 	SnakeHead _snakeHead;

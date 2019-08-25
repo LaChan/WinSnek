@@ -4,20 +4,13 @@
 #include "SnakeTail.h"
 #include "Fruit.h"
 #include <vector> 
+#include <chrono>
 
 
 bool SnakeGame::OnUserCreate()
 {
-	_snakeHead.x = _snakeHead.y = (float)START_X;
-	_snakeHead.cellX = _snakeHead.cellY = START_X;
-	_snakeHead.speed = 0.0015f;
-	_snakeHead.dir = _snakeHead.UP;
-	_snakeHead.colour = HEAD_COLOUR;
-	_fruit.x = (rand() % ScreenWidth());
-	_fruit.y = (rand() % ScreenHeight() - 1); // So fruit doesn't spawn on Scoreline
-	_fruit.colour = FG_GREEN | BG_WHITE;
-	_score = 0;
-	srand((int)time(0)); // create random seed from current epoch time
+	srand((int)time(0)); // create random seed from current time in epoch
+	ResetBoard();
 	return true;
 }
 
@@ -25,51 +18,74 @@ void SnakeGame::ResetBoard()
 {
 	_snakeHead.x = _snakeHead.y = (float)START_X;
 	_snakeHead.cellX = _snakeHead.cellY = START_X;
-	_snakeHead.speed = 0.0015f;
+	_snakeHead.speed = 0.024f;
 	_snakeHead.dir = _snakeHead.UP;
 	_snakeHead.colour = HEAD_COLOUR;
 	_fruit.x = (rand() % ScreenWidth());
 	_fruit.y = (rand() % ScreenHeight());
 	_fruit.colour = FG_GREEN | BG_WHITE;
 	_score = 0;
-	_tailPieces.clear(); 
+	_tailPieces.clear(); // empty the tail vector in case of restart
+	if (_fruit.y == 0) {
+		_fruit.y += 1;
+	}
 }
 
 bool SnakeGame::OnUserUpdate(float fElapsedTime)
 {
 		while (!deadSnake) {
-			// Get input
+
+			// input
 			isUpKeyHeld_ = (m_keys[VK_UP].bHeld || m_keys[VK_UP].bPressed) ? true : false;
 			isDownKeyHeld_ = (m_keys[VK_DOWN].bHeld || m_keys[VK_DOWN].bPressed) ? true : false;
 			isRightKeyHeld_ = (m_keys[VK_RIGHT].bHeld || m_keys[VK_RIGHT].bPressed) ? true : false;
 			isLeftKeyHeld_ = (m_keys[VK_LEFT].bHeld || m_keys[VK_LEFT].bPressed) ? true : false;
 
-			// update everything
-			if (isUpKeyHeld_)
-				_snakeHead.dir = _snakeHead.UP;
-			if (isDownKeyHeld_)
-				_snakeHead.dir = _snakeHead.DOWN;
-			if (isRightKeyHeld_)
-				_snakeHead.dir = _snakeHead.RIGHT;
-			if (isLeftKeyHeld_)
-				_snakeHead.dir = _snakeHead.LEFT;
+			// update snake direction
+			// snake cannot reverse over itself, block opposite for each direction
+			
+			if (isUpKeyHeld_) {
+				if (_snakeHead.dir != _snakeHead.DOWN) {
+					_snakeHead.dir = _snakeHead.UP;
+				}
+			}
+			if (isDownKeyHeld_) {
+				if (_snakeHead.dir != _snakeHead.UP) {
+					_snakeHead.dir = _snakeHead.DOWN;
+				}
+			}
+			if (isRightKeyHeld_) {
+				if (_snakeHead.dir != _snakeHead.LEFT) {
+					_snakeHead.dir = _snakeHead.RIGHT;
+				}
+			}
+			if (isLeftKeyHeld_) {
+				if (_snakeHead.dir != _snakeHead.RIGHT) {
+					_snakeHead.dir = _snakeHead.LEFT;
+				}
+			}
 
 			//check for teleport 
-			if (_snakeHead.x >= ScreenWidth())
+			if (_snakeHead.cellX >= ScreenWidth())
 			{
-				_snakeHead.x = 0;
+				_snakeHead.x = 0.0;
+				_snakeHead.cellX = 0;
 			}
-			else if (_snakeHead.x <= 0.0)
+			else if (_snakeHead.cellX < 0)
 			{
-				_snakeHead.x = ScreenWidth();
+				_snakeHead.x = ScreenWidth()-1;
+				_snakeHead.cellX = ScreenWidth() - 1;
 			}
-			else if (_snakeHead.y >= ScreenHeight())
+			else if (_snakeHead.cellY >= ScreenHeight())
 			{
-				_snakeHead.y = 0;
+				_snakeHead.y = 1.0;
+				_snakeHead.cellY = 1;
 			}
-			else if (_snakeHead.y <= 1.0)
+			// like fruit, make sure snake doesn't cross scoreline
+			else if (_snakeHead.cellY < 1)
 			{
-				_snakeHead.y = ScreenHeight();
+				_snakeHead.y = ScreenHeight()-1;
+				_snakeHead.cellY = ScreenHeight() - 1;
 			}
 
 			//check for fruit collison
@@ -81,11 +97,55 @@ bool SnakeGame::OnUserUpdate(float fElapsedTime)
 				//randomly generate fruit at a new position  
 				_fruit.x = (rand() % ScreenWidth());
 				_fruit.y = (rand() % ScreenHeight());
+				
+				if (_fruit.y == 0) {
+					_fruit.y += 1;
+				}
 
-				//add a new tail piece
-				_tailPieces.push_back(SnakeTail());
+				//add a new tail piece behind the head first, then last tail piece
+				if (_tailPieces.size() == 0) {
+					if (_snakeHead.dir == _snakeHead.UP) {
+						_tailPieces.push_back(SnakeTail(_snakeHead.cellX, _snakeHead.cellY + 1));
+					}
+					else if (_snakeHead.dir == _snakeHead.DOWN) {
+						_tailPieces.push_back(SnakeTail(_snakeHead.cellX, _snakeHead.cellY - 1));
+					}
+					else if (_snakeHead.dir == _snakeHead.RIGHT) {
+						_tailPieces.push_back(SnakeTail(_snakeHead.cellX - 1, _snakeHead.cellY));
+					}
+					else if (_snakeHead.dir == _snakeHead.LEFT) {
+						_tailPieces.push_back(SnakeTail(_snakeHead.cellX + 1, _snakeHead.cellY));
+					}
+
+				}
+				else {
+
+					if (_snakeHead.dir == _snakeHead.UP) {
+						_tailPieces.push_back(SnakeTail(_tailPieces.back().cellX, _tailPieces.back().cellY + 1));
+					}
+					else if (_snakeHead.dir == _snakeHead.DOWN) {
+						_tailPieces.push_back(SnakeTail(_tailPieces.back().cellX, _tailPieces.back().cellY - 1));
+					}
+					else if (_snakeHead.dir == _snakeHead.RIGHT) {
+						_tailPieces.push_back(SnakeTail(_tailPieces.back().cellX - 1, _tailPieces.back().cellY));
+					}
+					else if (_snakeHead.dir == _snakeHead.LEFT) {
+						_tailPieces.push_back(SnakeTail(_tailPieces.back().cellX + 1, _tailPieces.back().cellY));
+					}
+				}
 
 			}
+			
+			//Did snake eat itself?
+			for (unsigned int i = 0; i < _tailPieces.size(); i++) {
+				SnakeTail& tailPiece = _tailPieces[i];
+				if (_snakeHead.cellX == tailPiece.cellX && _snakeHead.cellY == tailPiece.cellY) {
+					deadSnake = true;
+					waitingForInput = true;
+				}
+			}
+
+			this_thread::sleep_for(chrono::milliseconds(10));
 
 			// Draw the world
 			RenderWorld();
@@ -120,14 +180,27 @@ void SnakeGame::RenderWorld()
 {
 	// Clear the screen by drawing GROUND colour
 	Fill(0, 0, ScreenWidth(), ScreenHeight(), PIXEL_SOLID, GROUND_COLOUR);
+	
+	// Draw the header
+	Fill(0, 0, ScreenWidth(), 1, PIXEL_SOLID, FG_BLACK);
 	DrawString(0, 0, L"Score: " + to_wstring(_score));
-	//Move the Snake
+
+	
+	DrawString(0, 2, L"Head cell y: " + to_wstring(_snakeHead.cellY));
+	DrawString(0, 3, L"Head cell x: " + to_wstring(_snakeHead.cellX));
+	/*
+	DrawString(0, 3, L"fruit cell x: " + to_wstring(_fruit.x));
+	DrawString(0, 4, L"fruit cell y: " + to_wstring(_fruit.y));
+	*/
+	
+	//Moving the Snake, updating values
 
 	//Save previous frame coords
 	_snakeHead.lastY = _snakeHead.y;
 	_snakeHead.lastX = _snakeHead.x;
 
 	//Actually move the snake
+
 	if (_snakeHead.dir == _snakeHead.UP)
 	{
 		_snakeHead.y -= _snakeHead.speed;
@@ -150,59 +223,49 @@ void SnakeGame::RenderWorld()
 	_snakeHead.cellX = round(_snakeHead.x);
 	_snakeHead.cellY = round(_snakeHead.y);
 
-	//Are we now over halfway to a new cell in x-plane?
+	//Are we now over halfway to a new cell in x-direction?
 	if (round(_snakeHead.x) != round(_snakeHead.lastX)) {
 
 		//update last cell value
 		_snakeHead.lastCellX = (int)round(_snakeHead.lastX);
 
 		for (int i = 0; i < _tailPieces.size(); i++) {
-
+			SnakeTail& tailPiece = _tailPieces[i];
 			if (i == 0) {
-				_tailPieces[i].lastCellX = _tailPieces[i].cellX;
-				_tailPieces[i].cellX = _snakeHead.lastCellX;
-				_tailPieces[i].lastCellY = _tailPieces[i].cellY;
-				_tailPieces[i].cellY = _snakeHead.cellY;
-				
+				tailPiece.lastCellX = tailPiece.cellX;
+				tailPiece.cellX = _snakeHead.lastCellX;
+				tailPiece.lastCellY = tailPiece.cellY;
+				tailPiece.cellY = _snakeHead.cellY;
 			}
 			else {
-				_tailPieces[i].lastCellX = _tailPieces[i].cellX;
-				_tailPieces[i].cellX = _tailPieces[i-1].lastCellX;
-				_tailPieces[i].lastCellY = _tailPieces[i].cellY;
-				_tailPieces[i].cellY = _tailPieces[i-1].lastCellY;
-
+				tailPiece.lastCellX = tailPiece.cellX;
+				tailPiece.cellX = _tailPieces[i-1].lastCellX;
+				tailPiece.lastCellY = tailPiece.cellY;
+				tailPiece.cellY = _tailPieces[i-1].lastCellY;
 			}
-
 		}
-	}
+	} 
 
-	//Are we now over halfway to a new cell in y-plane?
+	//Are we now over halfway to a new cell in y-direction?
 	if (round(_snakeHead.y) != round(_snakeHead.lastY)) {
 
 		//update last cell value
 		_snakeHead.lastCellY = (int)round(_snakeHead.lastY);
 
 		for (int i = 0; i < _tailPieces.size(); i++) {
+			SnakeTail& tailPiece = _tailPieces[i];
 			if (i == 0) {
-				_tailPieces[i].lastCellX = _tailPieces[i].cellX;
-				_tailPieces[i].cellX = _snakeHead.cellX;
-				_tailPieces[i].lastCellY = _tailPieces[i].cellY;
-				_tailPieces[i].cellY = _snakeHead.lastCellY;
+				tailPiece.lastCellX = tailPiece.cellX;
+				tailPiece.cellX = _snakeHead.cellX;
+				tailPiece.lastCellY = tailPiece.cellY;
+				tailPiece.cellY = _snakeHead.lastCellY;
 			}
 			else {
-				_tailPieces[i].lastCellX = _tailPieces[i].cellX;
-				_tailPieces[i].cellX = _tailPieces[i - 1].lastCellX;
-				_tailPieces[i].lastCellY = _tailPieces[i].cellY;
-				_tailPieces[i].cellY = _tailPieces[i - 1].lastCellY;
+				tailPiece.lastCellX = tailPiece.cellX;
+				tailPiece.cellX = _tailPieces[i - 1].lastCellX;
+				tailPiece.lastCellY = tailPiece.cellY;
+				tailPiece.cellY = _tailPieces[i - 1].lastCellY;
 			}
-		}
-	}
-
-	//Did snake eat itself?
-	for (unsigned int i = 0; i < _tailPieces.size(); i++) {
-		if (_snakeHead.cellX == _tailPieces[i].cellX && _snakeHead.cellY == _tailPieces[i].cellY) {
-			deadSnake = true;
-			waitingForInput = true;
 		}
 	}
 
@@ -213,7 +276,8 @@ void SnakeGame::RenderWorld()
 	
 	//Draw the Tail
 	for (unsigned int i = 0; i < _tailPieces.size(); i++) {
-		Draw(_tailPieces[i].cellX, _tailPieces[i].cellY, PIXEL_SOLID, _snakeHead.colour);
+		SnakeTail& tailPiece = _tailPieces[i];
+		Draw(tailPiece.cellX, tailPiece.cellY, PIXEL_SOLID, _snakeHead.colour);
 	}
 	
 	//Draw the Fruit

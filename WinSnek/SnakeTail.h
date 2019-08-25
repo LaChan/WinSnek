@@ -17,6 +17,6 @@ public:
 	enum Direction { STOP, LEFT, RIGHT, UP, DOWN };
 	Direction dir;
 
-	SnakeTail();
+	SnakeTail(int x, int y);
 	~SnakeTail();
 };

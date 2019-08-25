@@ -17,6 +17,7 @@ public:
 	int colour = 0;
 	enum Direction { STOP, LEFT, RIGHT, UP, DOWN };
 	Direction dir;
+	Direction lastDir;
 
 	SnakeHead();
 	~SnakeHead();
