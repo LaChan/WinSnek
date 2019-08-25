@@ -14,11 +14,25 @@ bool SnakeGame::OnUserCreate()
 	_snakeHead.dir = _snakeHead.UP;
 	_snakeHead.colour = HEAD_COLOUR;
 	_fruit.x = (rand() % ScreenWidth());
-	_fruit.y = (rand() % ScreenHeight());
+	_fruit.y = (rand() % ScreenHeight() - 1); // So fruit doesn't spawn on Scoreline
 	_fruit.colour = FG_GREEN | BG_WHITE;
 	_score = 0;
 	srand((int)time(0)); // create random seed from current epoch time
 	return true;
+}
+
+void SnakeGame::ResetBoard()
+{
+	_snakeHead.x = _snakeHead.y = (float)START_X;
+	_snakeHead.cellX = _snakeHead.cellY = START_X;
+	_snakeHead.speed = 0.0015f;
+	_snakeHead.dir = _snakeHead.UP;
+	_snakeHead.colour = HEAD_COLOUR;
+	_fruit.x = (rand() % ScreenWidth());
+	_fruit.y = (rand() % ScreenHeight());
+	_fruit.colour = FG_GREEN | BG_WHITE;
+	_score = 0;
+	_tailPieces.clear(); 
 }
 
 bool SnakeGame::OnUserUpdate(float fElapsedTime)
@@ -29,7 +43,6 @@ bool SnakeGame::OnUserUpdate(float fElapsedTime)
 			isDownKeyHeld_ = (m_keys[VK_DOWN].bHeld || m_keys[VK_DOWN].bPressed) ? true : false;
 			isRightKeyHeld_ = (m_keys[VK_RIGHT].bHeld || m_keys[VK_RIGHT].bPressed) ? true : false;
 			isLeftKeyHeld_ = (m_keys[VK_LEFT].bHeld || m_keys[VK_LEFT].bPressed) ? true : false;
-
 
 			// update everything
 			if (isUpKeyHeld_)
@@ -42,19 +55,19 @@ bool SnakeGame::OnUserUpdate(float fElapsedTime)
 				_snakeHead.dir = _snakeHead.LEFT;
 
 			//check for teleport 
-			if (_snakeHead.x > ScreenWidth())
+			if (_snakeHead.x >= ScreenWidth())
 			{
 				_snakeHead.x = 0;
 			}
-			else if (_snakeHead.x < 0.0)
+			else if (_snakeHead.x <= 0.0)
 			{
 				_snakeHead.x = ScreenWidth();
 			}
-			else if (_snakeHead.y > ScreenHeight())
+			else if (_snakeHead.y >= ScreenHeight())
 			{
 				_snakeHead.y = 0;
 			}
-			else if (_snakeHead.y < 0.0)
+			else if (_snakeHead.y <= 1.0)
 			{
 				_snakeHead.y = ScreenHeight();
 			}
@@ -74,24 +87,6 @@ bool SnakeGame::OnUserUpdate(float fElapsedTime)
 
 			}
 
-			//Did snake eat itself?
-			int xcol = 0;
-			int ycol = 0;
-
-			for (unsigned int i = 0; i < _tailPieces.size(); i++) {
-				if (_snakeHead.cellX == _tailPieces[i].cellX) {
-					xcol += 1;
-				}
-
-				if (_snakeHead.cellY == _tailPieces[i].cellY) {
-					ycol += 1;
-				}
-			}
-
-			if (xcol > 0 && ycol > 0) {
-				deadSnake = true;
-				waitingForInput = true;
-			}
 			// Draw the world
 			RenderWorld();
 
@@ -106,9 +101,16 @@ bool SnakeGame::OnUserUpdate(float fElapsedTime)
 			Fill(0, 0, ScreenWidth(), ScreenHeight(), PIXEL_SOLID, GROUND_COLOUR);
 			DrawString(5, 10, L"Game Over");
 			DrawString(0, 11, L"Press Escape to Exit");
+			DrawString(0, 12, L"Press Space to Restart");
 
 			if (isEscapeKeyHeld_) {
 				exit(0);
+			}
+			else if (isSpaceKeyHeld_) {
+				ResetBoard();
+				RenderWorld();
+				waitingForInput = false;
+				deadSnake = false;
 			}
 			return true;
 		}
@@ -119,7 +121,6 @@ void SnakeGame::RenderWorld()
 	// Clear the screen by drawing GROUND colour
 	Fill(0, 0, ScreenWidth(), ScreenHeight(), PIXEL_SOLID, GROUND_COLOUR);
 	DrawString(0, 0, L"Score: " + to_wstring(_score));
-
 	//Move the Snake
 
 	//Save previous frame coords
@@ -197,6 +198,13 @@ void SnakeGame::RenderWorld()
 		}
 	}
 
+	//Did snake eat itself?
+	for (unsigned int i = 0; i < _tailPieces.size(); i++) {
+		if (_snakeHead.cellX == _tailPieces[i].cellX && _snakeHead.cellY == _tailPieces[i].cellY) {
+			deadSnake = true;
+			waitingForInput = true;
+		}
+	}
 
 	//Draw the World
 

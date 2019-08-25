@@ -8,8 +8,8 @@ public:
 	float lastX = 0.0f;
 	float lastY = 0.0f;
 	float speed = 0.0f;
-	int cellX = 0;
-	int cellY = 0;
+	int cellX = -1;
+	int cellY = -1;
 	int cellsPerSec = 15;
 	int lastCellX = -1;
 	int lastCellY = -1;

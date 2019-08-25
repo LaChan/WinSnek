@@ -19,6 +19,7 @@ protected:
 
 	virtual bool OnUserCreate();
 	virtual bool OnUserUpdate(float fElapsedTime);
+	void ResetBoard();
 
 	bool isUpKeyHeld_ = false;
 	bool isDownKeyHeld_ = false;
