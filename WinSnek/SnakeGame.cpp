@@ -23,9 +23,13 @@ void SnakeGame::ResetBoard()
 	_snakeHead.colour = HEAD_COLOUR;
 	_fruit.x = (rand() % ScreenWidth());
 	_fruit.y = (rand() % ScreenHeight());
-	_fruit.colour = FG_GREEN | BG_WHITE;
+	_fruit.colour = FG_CYAN | BG_WHITE;
 	_score = 0;
-	_tailPieces.clear(); // empty the tail vector in case of restart
+
+	// empty the tail vector in case of restart
+	_tailPieces.clear();
+
+	//ensure fruit hasn't spawned on scoreline
 	if (_fruit.y == 0) {
 		_fruit.y += 1;
 	}
@@ -43,7 +47,6 @@ bool SnakeGame::OnUserUpdate(float fElapsedTime)
 
 			// update snake direction
 			// snake cannot reverse over itself, block opposite for each direction
-			
 			if (isUpKeyHeld_) {
 				if (_snakeHead.dir != _snakeHead.DOWN) {
 					_snakeHead.dir = _snakeHead.UP;
@@ -98,6 +101,7 @@ bool SnakeGame::OnUserUpdate(float fElapsedTime)
 				_fruit.x = (rand() % ScreenWidth());
 				_fruit.y = (rand() % ScreenHeight());
 				
+				//make sure new position isn't on the scoreline
 				if (_fruit.y == 0) {
 					_fruit.y += 1;
 				}
@@ -181,18 +185,10 @@ void SnakeGame::RenderWorld()
 	// Clear the screen by drawing GROUND colour
 	Fill(0, 0, ScreenWidth(), ScreenHeight(), PIXEL_SOLID, GROUND_COLOUR);
 	
-	// Draw the header
+	// Draw the scoreline
 	Fill(0, 0, ScreenWidth(), 1, PIXEL_SOLID, FG_BLACK);
 	DrawString(0, 0, L"Score: " + to_wstring(_score));
 
-	
-	DrawString(0, 2, L"Head cell y: " + to_wstring(_snakeHead.cellY));
-	DrawString(0, 3, L"Head cell x: " + to_wstring(_snakeHead.cellX));
-	/*
-	DrawString(0, 3, L"fruit cell x: " + to_wstring(_fruit.x));
-	DrawString(0, 4, L"fruit cell y: " + to_wstring(_fruit.y));
-	*/
-	
 	//Moving the Snake, updating values
 
 	//Save previous frame coords
@@ -204,18 +200,82 @@ void SnakeGame::RenderWorld()
 	if (_snakeHead.dir == _snakeHead.UP)
 	{
 		_snakeHead.y -= _snakeHead.speed;
+
+		for (int i = 0; i < _tailPieces.size(); i++) {
+			SnakeTail& tailPiece = _tailPieces[i];
+			if (i == 0) {
+				tailPiece.lastX = tailPiece.x;
+				tailPiece.x = _snakeHead.x;
+				tailPiece.lastY = tailPiece.y;
+				tailPiece.y = _snakeHead.lastY;
+			}
+			else {
+				tailPiece.lastX = tailPiece.x;
+				tailPiece.x = _tailPieces[i - 1].lastX;
+				tailPiece.lastY = tailPiece.y;
+				tailPiece.y = _tailPieces[i - 1].lastY;
+			}
+		}
 	}
 	else if (_snakeHead.dir == _snakeHead.DOWN)
 	{
 		_snakeHead.y += _snakeHead.speed;
+
+		for (int i = 0; i < _tailPieces.size(); i++) {
+			SnakeTail& tailPiece = _tailPieces[i];
+			if (i == 0) {
+				tailPiece.lastX = tailPiece.x;
+				tailPiece.x = _snakeHead.x;
+				tailPiece.lastY = tailPiece.y;
+				tailPiece.y = _snakeHead.lastY;
+			}
+			else {
+				tailPiece.lastX = tailPiece.x;
+				tailPiece.x = _tailPieces[i - 1].lastX;
+				tailPiece.lastY = tailPiece.y;
+				tailPiece.y = _tailPieces[i - 1].lastY;
+			}
+		}
 	}
 	else if (_snakeHead.dir == _snakeHead.RIGHT)
 	{
 		_snakeHead.x += _snakeHead.speed;
+
+		for (int i = 0; i < _tailPieces.size(); i++) {
+			SnakeTail& tailPiece = _tailPieces[i];
+			if (i == 0) {
+				tailPiece.lastX = tailPiece.x;
+				tailPiece.x = _snakeHead.lastX;
+				tailPiece.lastY = tailPiece.y;
+				tailPiece.y = _snakeHead.y;
+			}
+			else {
+				tailPiece.lastX = tailPiece.x;
+				tailPiece.x = _tailPieces[i - 1].lastX;
+				tailPiece.lastY = tailPiece.y;
+				tailPiece.y = _tailPieces[i - 1].lastY;
+			}
+		}
 	}
 	else if (_snakeHead.dir = _snakeHead.LEFT)
 	{
 		_snakeHead.x -= _snakeHead.speed;
+
+		for (int i = 0; i < _tailPieces.size(); i++) {
+			SnakeTail& tailPiece = _tailPieces[i];
+			if (i == 0) {
+				tailPiece.lastX = tailPiece.x;
+				tailPiece.x = _snakeHead.lastX;
+				tailPiece.lastY = tailPiece.y;
+				tailPiece.y = _snakeHead.y;
+			}
+			else {
+				tailPiece.lastX = tailPiece.x;
+				tailPiece.x = _tailPieces[i - 1].lastX;
+				tailPiece.lastY = tailPiece.y;
+				tailPiece.y = _tailPieces[i - 1].lastY;
+			}
+		}
 
 	}
 

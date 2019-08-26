@@ -31,8 +31,8 @@ protected:
 	bool deadSnake = false;
 
 	const int START_X = 10;
-	const int HEAD_COLOUR = BG_DARK_BLUE | FG_DARK_RED;
-	const int GROUND_COLOUR = FG_BLUE | BG_DARK_BLUE;
+	const int HEAD_COLOUR = BG_BLACK | FG_DARK_RED;
+	const int GROUND_COLOUR = BG_DARK_BLUE | FG_DARK_GREEN;
 
  	vector<SnakeTail> _tailPieces;
 	SnakeHead _snakeHead;
