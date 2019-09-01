@@ -23,6 +23,7 @@
     <ProjectGuid>{ba4dcf82-f4fa-41c4-9940-f89da3e79998}</ProjectGuid>
     <RootNamespace>WinSnek</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+    <ProjectName>SnakeGame_LH</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

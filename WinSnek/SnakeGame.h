@@ -5,17 +5,16 @@
 #include "Fruit.h"
 #include <vector>
 
-
-
 class SnakeGame : public olcConsoleGameEngineOOP
 {
 public:
 	
 	SnakeGame();
 	~SnakeGame();
-	
+		
 protected:
 	int _score = 232995;
+	int _level = 1;
 
 	virtual bool OnUserCreate();
 	virtual bool OnUserUpdate(float fElapsedTime);
@@ -30,12 +29,15 @@ protected:
 	bool waitingForInput = false;
 	bool deadSnake = false;
 
+
 	const int START_X = 10;
-	const int HEAD_COLOUR = BG_BLACK | FG_DARK_RED;
-	const int GROUND_COLOUR = BG_DARK_BLUE | FG_DARK_GREEN;
+	const int HEAD_COLOUR = FG_MAGENTA| BG_BLACK;
+	const int TAIL_COLOUR = FG_DARK_MAGENTA | BG_BLACK;
+	const int GROUND_COLOUR = FG_BLACK | BG_BLACK;
 
  	vector<SnakeTail> _tailPieces;
 	SnakeHead _snakeHead;
 	Fruit _fruit;
+	
 	void RenderWorld();
 };

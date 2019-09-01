@@ -4,6 +4,7 @@ class SnakeHead
 {
 
 public:
+
 	float x = 0.0f;
 	float y = 0.0f;
 	float lastX = -1.0f;
